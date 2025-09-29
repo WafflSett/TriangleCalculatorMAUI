@@ -17,7 +17,14 @@ namespace TriangleCalculatorMAUI
         }
 
         public List<string> PickerOptions { get; set; } = new List<string>() {"Area", "Perimeter", "Angles" };
-        public int SelectedIndex { get; set; } = -1;
+        private int selectedIndex = -1;
+
+        public int SelectedIndex
+        {
+            get { return selectedIndex; }
+            set { selectedIndex = value; OnPropertyChanged(nameof(SelectedIndex)); }
+        }
+
 
         public MainPage()
         {
@@ -27,25 +34,31 @@ namespace TriangleCalculatorMAUI
 
         private async void Calc_BTN_Clicked(object sender, EventArgs e)
         {
-            if (SelectedIndex != -1 && MyTriangle.IsValidTriangle())
-                await this.ShowPopupAsync(new PopupPage("Result", GetCalcResult()));
-            else
+            if (!MyTriangle.IsValidTriangle()) {
                 await this.ShowPopupAsync(new PopupPage("Error", "The triangle you entered isnt valid!"));
+                return;
+            }
+            if (SelectedIndex != -1){
+                await this.ShowPopupAsync(new PopupPage("Result", GetCalcResult()));
+                return;
+            }
+            await this.ShowPopupAsync(new PopupPage("Error", "Please select a calculation mode!"));
         }
 
         private void Clear_BTN_Clicked(object sender, EventArgs e)
         {
             MyTriangle = new Triangle();
-            OnPropertyChanged(nameof(MyTriangle));
+            SelectedIndex = -1;
+            //OnPropertyChanged(nameof(MyTriangle));
         }
 
         private string GetCalcResult() {
             switch (SelectedIndex)
             {
                 case 0:
-                    return $"{MyTriangle.Area}";
+                    return $"A={MyTriangle.Area}";
                 case 1:
-                    return $"{MyTriangle.S}";
+                    return $"P={MyTriangle.S}";
                 case 2:
                     return $"α={MyTriangle.Alpha}°, β={myTriangle.Beta}°, γ={MyTriangle.Gamma}°";
                 default:
